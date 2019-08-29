@@ -1,10 +1,33 @@
 version: '3'
 services:
   web:
-    container_name: debut_web
+    container_name: debut_backend
     build: .
     ports:
-      - "9000:9000"
-    working_dir: /var/www/debut
+      - "9010:8000"
+    working_dir: /var/www/debut_backend
     volumes:
-      - .:/var/www/debut
+      - .:/var/www/debut_backend
+    links:
+     - redis
+     - db
+  redis:
+    image: "redis:alpine"
+    ports:
+     - "9763:6379"
+  echo-server:
+    image: "lagun4ik/laravel-echo-server"
+    ports:
+     - "6001:6001"
+    volumes:
+     - .:/app
+    links:
+     - redis
+     - web
+  db:
+    image: "mariadb:10.1.30"
+    environment:
+     MYSQL_ROOT_PASSWORD: "1"
+     MYSQL_DATABASE: "trading"
+    ports:
+     - "33306:3306"
