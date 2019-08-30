@@ -1,5 +1,5 @@
 export default {
-  window_title: "Debut Wallet - Be Your Own Bank",
+  window_title: "Admin Wallet",
 
   header: {
     lang_en: "English",
