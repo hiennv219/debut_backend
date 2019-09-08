@@ -181,7 +181,7 @@ return [
         *
         */
         Laravel\Passport\PassportServiceProvider::class,
-
+        Barryvdh\Cors\ServiceProvider::class,
     ],
 
     /*
