@@ -30,4 +30,4 @@ services:
      MYSQL_ROOT_PASSWORD: "1"
      MYSQL_DATABASE: "trading"
     ports:
-     - "33306:3306"
+     - "33307:3306"
