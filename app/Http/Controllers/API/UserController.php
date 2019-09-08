@@ -5,23 +5,25 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Response;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 
 
-class UserController extends Controller
+class UserController extends AppBaseController
 {
     public $successStatus = 200;
 
     public function login() {
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
             $user = Auth::user();
-            $success['token'] = $user->createToken('MyApp')->accessToken;
-            return response()->json(['success' => $success], $this->successStatus);
+            $success['access_token'] = $user->createToken('MyApp')->accessToken;
+
+            return $this->sendResponse($success);
         }else{
-            return response()->json(['error' => 'Unauthorised'], 401);
+            return $this->sendError('Unauthorised');
         }
     }
 
@@ -34,21 +36,21 @@ class UserController extends Controller
         ]);
 
         if($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return $this->sendError($validator->errors());
         }
 
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
 
-        $success['token'] = $user->createToken('MyApp')->accessToken;
+        $success['access_token'] = $user->createToken('MyApp')->accessToken;
         $success['name'] = $user->name;
-        return response()->json(['success' => $success], $this->successStatus);
+        return $this->sendResponse($success);
     }
 
     public function details() {
         $user = Auth::user();
-        return response()->json(['success' => $user], $this->successStatus);
+        return $this->sendResponse($user);
     }
 
 }
