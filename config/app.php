@@ -53,6 +53,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'client_secret' => env('CLIENT_SECRET', 'RSEgSpb4nmH9EKr9YYYFTlJOGfSYfUIeUtVPlOCt'),
 
     /*
     |--------------------------------------------------------------------------

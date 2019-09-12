@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Http\Controllers\AppBaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use App\User;
-use Illuminate\Support\Facades\Auth;
+use App\Models\UserSecuritySetting;
+use Illuminate\Auth\Events\Registered;
 use Validator;
-
+use Log;
+use DB;
 
 class UserController extends AppBaseController
 {
@@ -39,24 +42,54 @@ class UserController extends AppBaseController
     }
 
     public function register(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-            'c_password' => 'required|same:password',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'password' => 'required',
+                'c_password' => 'required|same:password',
+            ]);
 
-        if($validator->fails()) {
-            return $this->sendError($validator->errors());
+            if($validator->fails()) {
+                return $this->sendError($validator->errors());
+            }
+
+            $code = rand(100000, 999999);
+            event(new Registered(
+                $this->create(
+                    $request->all(),
+                    $code
+                )
+            ));
+            return $this->sendResponse(true);
+        } catch (\Exception $e) {
+            return $this->sendResponse($e->getMessage());
+        }
+    }
+
+
+    public function create($input, $code) {
+        DB::beginTransaction();
+        try {
+            //Create user
+            $input['password'] = bcrypt($input['password']);
+            $user = User::create($input);
+
+            //Save code
+            $setting = UserSecuritySetting::firstOrNew([ 'id' => $user->id ]);
+            $setting->email_verification_code = $code;
+            $setting->save();
+
+            DB::commit();
+            return $user;
+        } catch (\Exception $e) {
+            Log::error("ERROR. creating new user: " . $e->getMessage());
+            DB::rollback();
+            throw $e;
         }
 
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
 
-        $success['access_token'] = $user->createToken('MyApp')->accessToken;
-        $success['name'] = $user->name;
-        return $this->sendResponse($success);
+
     }
 
     public function details() {

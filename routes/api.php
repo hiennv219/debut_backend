@@ -13,7 +13,15 @@ use Illuminate\Http\Request;
 |
 */
 
+
+
 Route::group(['prefix' => '/v1/'], function(){
+
+    Route::post('/oauth/token', [
+      'uses' => '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken',
+      'middleware' => 'throttle:6000|6000,1'
+    ]);
+    
     Route::post('login', 'API\UserController@login');
     Route::post('register', 'API\UserController@register');
 });
