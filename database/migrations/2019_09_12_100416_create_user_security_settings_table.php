@@ -20,6 +20,9 @@ class CreateUserSecuritySettingsTable extends Migration
           $table->unsignedInteger('otp_verified')->default(0);
           $table->unsignedInteger('phone_verified')->default(0);
           $table->timestamps();
+
+          $table->unique('id');
+
         });
     }
 
