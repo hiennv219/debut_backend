@@ -22,7 +22,6 @@ class UserController extends AppBaseController
     public function __construct() {
         $this->userService = new UserService();
     }
-
     // public function login() {
     //     try {
     //         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
