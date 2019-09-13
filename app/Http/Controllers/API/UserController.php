@@ -8,43 +8,46 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
-use App\User;
-use App\Models\UserSecuritySetting;
 use Illuminate\Auth\Events\Registered;
+use App\Http\Services\UserService;
+use App\Models\UserSecuritySetting;
+use App\User;
 use Validator;
 use Log;
 use DB;
 
 class UserController extends AppBaseController
 {
-    public $successStatus = 200;
 
-    public function login() {
-        try {
-            if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
-                $user = Auth::user();
-                $success['access_token'] = $user->createToken('MyApp')->accessToken;
-
-                return $this->sendResponse($success);
-            }
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
-        }
-
-        if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
-            $user = Auth::user();
-            $success['access_token'] = $user->createToken('MyApp')->accessToken;
-
-            return $this->sendResponse($success);
-        }else{
-            return $this->sendError('Unauthorised');
-        }
+    public function __construct() {
+        $this->userService = new UserService();
     }
+
+    // public function login() {
+    //     try {
+    //         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
+    //             $user = Auth::user();
+    //             $success['access_token'] = $user->createToken('MyApp')->accessToken;
+    //
+    //             return $this->sendResponse($success);
+    //         }
+    //     } catch (\Exception $e) {
+    //         return $this->sendError($e->getMessage());
+    //     }
+    //
+    //     if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
+    //         $user = Auth::user();
+    //         $success['access_token'] = $user->createToken('MyApp')->accessToken;
+    //
+    //         return $this->sendResponse($success);
+    //     }else{
+    //         return $this->sendError('Unauthorised');
+    //     }
+    // }
 
     public function register(Request $request) {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
                 'email' => 'required|email|unique:users',
                 'password' => 'required',
                 'c_password' => 'required|same:password',
@@ -61,12 +64,12 @@ class UserController extends AppBaseController
                     $code
                 )
             ));
-            return $this->sendResponse(true);
+            $this->userService->setAuthenticationNumber($request->email, $code);
+            return $this->sendResponse($code);
         } catch (\Exception $e) {
             return $this->sendResponse($e->getMessage());
         }
     }
-
 
     public function create($input, $code) {
         DB::beginTransaction();
@@ -87,14 +90,17 @@ class UserController extends AppBaseController
             DB::rollback();
             throw $e;
         }
-
-
-
     }
 
-    public function details() {
-        $user = Auth::user();
-        return $this->sendResponse($user);
+    public function emailVerify(Request $request) {
+        try {
+            $email = $request->email;
+            $code = $request->code;
+            $this->userService->emailVerify($email, $code);
+            return $this->sendResponse(true);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 
 }

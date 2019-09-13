@@ -21,9 +21,10 @@ Route::group(['prefix' => '/v1/'], function(){
       'uses' => '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken',
       'middleware' => 'throttle:6000|6000,1'
     ]);
-    
+
     Route::post('login', 'API\UserController@login');
     Route::post('register', 'API\UserController@register');
+    Route::post('email-verify', 'API\UserController@emailVerify');
 });
 
 Route::group(['middleware' => 'auth:api'], function() {
