@@ -27,13 +27,13 @@ Route::group(['prefix' => '/v1/'], function(){
         'middleware' => 'throttle:6000|6000,1'
     ]);
 
-    Route::post('login', 'API\UserController@login');
-    Route::post('register', 'API\UserController@register');
-    Route::post('email-verify', 'API\UserController@emailVerify');
+    Route::post('login', 'API\RegisterController@login');
+    Route::post('register', 'API\RegisterController@register');
+    Route::post('email-verify', 'API\RegisterController@emailVerify');
 });
 
 Route::group(['middleware' => 'auth:api'], function() {
-    Route::post('details', 'API\UserController@details');
+    // Route::post('details', 'API\RegisterController@details');
 });
 
 

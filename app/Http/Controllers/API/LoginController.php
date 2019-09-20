@@ -37,10 +37,11 @@ class LoginController extends AccessTokenController
             return $response;
             // return $this->authenticated($response);
         } catch (OAuthServerException $e) {
-            // throw ValidationException::withMessages([
-            //     'email' => [trans('auth.failed')],
-            // ]);
-            throw new \Exception($e->getMessage());
+            throw ValidationException::withMessages([
+                'email' => [$e->getMessage()],
+            ]);
+
+            // throw new \Exception($e->getMessage());
         }
     }
 

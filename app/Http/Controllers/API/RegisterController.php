@@ -16,33 +16,12 @@ use Validator;
 use Log;
 use DB;
 
-class UserController extends AppBaseController
+class RegisterController extends AppBaseController
 {
 
     public function __construct() {
         $this->userService = new UserService();
     }
-    // public function login() {
-    //     try {
-    //         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
-    //             $user = Auth::user();
-    //             $success['access_token'] = $user->createToken('MyApp')->accessToken;
-    //
-    //             return $this->sendResponse($success);
-    //         }
-    //     } catch (\Exception $e) {
-    //         return $this->sendError($e->getMessage());
-    //     }
-    //
-    //     if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
-    //         $user = Auth::user();
-    //         $success['access_token'] = $user->createToken('MyApp')->accessToken;
-    //
-    //         return $this->sendResponse($success);
-    //     }else{
-    //         return $this->sendError('Unauthorised');
-    //     }
-    // }
 
     public function register(Request $request) {
         try {
