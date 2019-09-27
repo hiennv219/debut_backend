@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 */
 
 
-
 Route::group(['prefix' => '/v1/'], function(){
     //
     // Route::post('/oauth/token', [
@@ -30,11 +29,13 @@ Route::group(['prefix' => '/v1/'], function(){
     Route::post('login', 'API\RegisterController@login');
     Route::post('register', 'API\RegisterController@register');
     Route::post('email-verify', 'API\RegisterController@emailVerify');
+
+    Route::group(['middleware' => 'auth:api'], function() {
+        Route::get('users', 'API\UserController@getInformation');
+        Route::get('general-qr-code', 'API\TwoFaceController@getOTPGoogleAuthenticator');
+    });
 });
 
-Route::group(['middleware' => 'auth:api'], function() {
-    // Route::post('details', 'API\RegisterController@details');
-});
 
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {

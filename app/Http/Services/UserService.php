@@ -18,7 +18,7 @@ class UserService {
     }
 
     public function emailVerify($email, $code) {
-        $this->validateParams($email, $code);
+        $this->validateParamsEmailVerify($email, $code);
 
         $setting = UserSecuritySetting::where('email_verification_code', $code)->first();
         if(!$setting) {
@@ -31,7 +31,7 @@ class UserService {
         return true;
     }
 
-    private function validateParams($email, $code) {
+    private function validateParamsEmailVerify($email, $code) {
         $key = $this->getKeyEmailVerify($email);
 
         if(!Cache::has($key)) {
@@ -43,5 +43,14 @@ class UserService {
             throw new \Exception("ERROR. Code is incorrect");
         }
         Cache::forget($key);
+    }
+
+    public function usingConfirmOtp($email, $code) {
+        $key = $this->getKeyOtpVerify($email);
+        Cache::put($key, $code, Consts::CACHE_LIVE_TIME_DEFAULT);
+    }
+
+    private function getKeyOtpVerify($email) {
+        return "authentication:using_otp:$email";
     }
 }
