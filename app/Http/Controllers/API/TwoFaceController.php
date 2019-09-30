@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use App\Http\Services\UserService;
 use App\Models\UserSecuritySetting;
+use Illuminate\Validation\ValidationException;
 use App\User;
 use Validator;
 use Log;
@@ -31,9 +32,11 @@ class TwoFaceController extends AppBaseController
         $code = $request->code;
 
         try {
-          return $this->userService->otpVerify($email, $code);
+            return $this->userService->otpVerify($email, $code);
         } catch (\Exception $e) {
-          return $e->getMessage();
+            throw ValidationException::withMessages([
+                'code' => [$e->getMessage()],
+            ]);
         }
     }
 

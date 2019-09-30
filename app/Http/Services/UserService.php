@@ -8,13 +8,17 @@ use App\Models\UserSecuritySetting;
 
 class UserService {
 
+    private function getKeyEmailVerify($email) {
+        return "authentication:email:$email";
+    }
+
+    private function getKeyOtpVerify($email) {
+        return "authentication:using_otp:$email";
+    }
+
     public function setAuthenticationNumber($email, $code) {
         $key = $this->getKeyEmailVerify($email);
         Cache::put($key, $code, Consts::CACHE_LIVE_TIME_DEFAULT);
-    }
-
-    private function getKeyEmailVerify($email) {
-        return "authentication:email:$email";
     }
 
     public function emailVerify($email, $code) {
@@ -33,14 +37,13 @@ class UserService {
 
     private function validateParamsEmailVerify($email, $code) {
         $key = $this->getKeyEmailVerify($email);
-
         if(!Cache::has($key)) {
-            throw new \Exception("ERROR. Code is expired");
+            throw new \Exception("Code is expired");
         }
 
         $codeCache = Cache::get($key);
         if($code != $codeCache) {
-            throw new \Exception("ERROR. Code is incorrect");
+            throw new \Exception("Code is incorrect");
         }
         Cache::forget($key);
     }
@@ -57,28 +60,40 @@ class UserService {
                         $secretCode,
                         config("app.name")
                     );
-
-    }
-
-    private function getKeyOtpVerify($email) {
-        return "authentication:using_otp:$email";
     }
 
     public function otpVerify($email, $otp) {
         $key = $this->getKeyOtpVerify($email);
         if(!Cache::has($key)) {
-            throw new \Exception("ERROR. OTP is invalid or expried");
+            throw new \Exception("OTP is expried");
         }
-
         $secretCode = Cache::get($key);
+        $this->verifyCode($secretCode, $otp);
+        Cache::forget($key);
+
+        return $this->upgradeUserSecurity($secretCode);
+    }
+
+    public function verifyCode($secretCode, $otp) {
         $googleAuthenticator = new \PHPGangsta_GoogleAuthenticator();
         if(!$googleAuthenticator->verifyCode($secretCode, $otp, 0)) {
-            throw new \Exception("ERROR. OTP is invalid");
+            throw new \Exception("OTP is incorrect");
         }
+    }
+
+    public function upgradeUserSecurity($secretCode) {
         $user = auth()->user();
+        $user->secret_code = $secretCode;
         $user->secret_code = $secretCode;
         $user->save();
 
-        return "2FA enabled!";
+        $setting = UserSecuritySetting::find($user->id);
+        if(!$setting) {
+            throw new \Exception("User security setting is not found");
+        }
+        $setting->otp_verified = 1;
+        $setting->save();
+
+        return true;
     }
 }

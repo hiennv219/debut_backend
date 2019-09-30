@@ -33,19 +33,16 @@ class LoginController extends AccessTokenController
             $response = $this->convertResponse(
                 $this->server->respondToAccessTokenRequest($request, new Psr7Response)
             );
-            $this->verifySettings($request);
+            $this->verifyUserSecurity($request);
             return $response;
-            // return $this->authenticated($response);
         } catch (OAuthServerException $e) {
             throw ValidationException::withMessages([
                 'email' => [$e->getMessage()],
             ]);
-
-            // throw new \Exception($e->getMessage());
         }
     }
 
-    protected function verifySettings($request) {
+    protected function verifyUserSecurity($request) {
         $params = $request->getParsedBody();
         $user = User::where('email', $params['username'])->first();
         $setting = UserSecuritySetting::find($user->id);
