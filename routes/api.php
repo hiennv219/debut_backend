@@ -29,6 +29,7 @@ Route::group(['prefix' => '/v1/'], function(){
     Route::post('login', 'API\RegisterController@login');
     Route::post('register', 'API\RegisterController@register');
     Route::post('email-verify', 'API\RegisterController@emailVerify');
+    Route::post('confirm-otp', 'API\LoginController@confirmOtp');
 
     Route::group(['middleware' => 'auth:api'], function() {
         Route::get('users', 'API\UserController@getInformation');

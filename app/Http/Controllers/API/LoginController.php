@@ -12,6 +12,8 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response as Psr7Response;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Services\UserService;
 use App\Models\UserSecuritySetting;
 use App\User;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +22,10 @@ class LoginController extends AccessTokenController
 {
 
     use HandlesOAuthErrors;
+
+    public function __construct() {
+        $this->userService = new UserService();
+    }
 
     /**
      * Authorize a client to access the user's account.
@@ -52,21 +58,29 @@ class LoginController extends AccessTokenController
         }
 
         if($setting->otp_verified) {
+
+            Validator::make($params, [
+                'otp' => "required|regex:/^([0-9]{6}).+$/",
+            ])->validate();
+
             if (!$this->verifyOtp($user, $params)) {
                 throw new OAuthServerException('The otp was incorrect.', 6, 'invalid_otp');
             }
         }
-
     }
 
-    private function verifyOtp($user, $params){
+    private function verifyOtp($user, $params) {
         if (array_key_exists('otp', $params)) {
-            /*Fake pass OTP*/
+            $this->userService->verifyCode($user->secret_code, $params['otp']);
             return true;
-            // return $user->verifyOtp($params['otp']);
         } else {
             return false;
         }
+    }
+
+    public function confirmOtp(Request $request) {
+        $user = User::where('email', $request->username)->first();
+        return $this->userService->verifyCode($user->secret_code, $request->otp);
     }
 
 }
