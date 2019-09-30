@@ -23,21 +23,18 @@ class TwoFaceController extends AppBaseController
     }
 
     public function getOTPGoogleAuthenticator(Request $request) {
-        $email = $request->user()->email;
-        $googleAuthenticator = new \PHPGangsta_GoogleAuthenticator();
-        $secretCode = $googleAuthenticator->createSecret();
-        // $email = 'nvhien129@gmail.com';
-        $this->userService->usingConfirmOtp($email, $secretCode);
-
-        return $googleAuthenticator->getQRCodeGoogleUrl(
-                        $email,
-                        $secretCode,
-                        config("app.name")
-                    );
+        return $this->userService->usingConfirmOtp($request->user()->email);
     }
 
-    public function confirmOTP() {
+    public function otpVerify(Request $request) {
+        $email = $request->user()->email;
+        $code = $request->code;
 
+        try {
+          return $this->userService->otpVerify($email, $code);
+        } catch (\Exception $e) {
+          return $e->getMessage();
+        }
     }
 
 }

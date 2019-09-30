@@ -33,6 +33,7 @@ Route::group(['prefix' => '/v1/'], function(){
     Route::group(['middleware' => 'auth:api'], function() {
         Route::get('users', 'API\UserController@getInformation');
         Route::get('general-qr-code', 'API\TwoFaceController@getOTPGoogleAuthenticator');
+        Route::post('otp-verify', 'API\TwoFaceController@otpVerify');
     });
 });
 

@@ -45,12 +45,40 @@ class UserService {
         Cache::forget($key);
     }
 
-    public function usingConfirmOtp($email, $code) {
+    public function usingConfirmOtp($email) {
+        $googleAuthenticator = new \PHPGangsta_GoogleAuthenticator();
+        $secretCode = $googleAuthenticator->createSecret();
+
         $key = $this->getKeyOtpVerify($email);
-        Cache::put($key, $code, Consts::CACHE_LIVE_TIME_DEFAULT);
+        Cache::put($key, $secretCode, Consts::CACHE_LIVE_TIME_DEFAULT);
+
+        return $googleAuthenticator->getQRCodeGoogleUrl(
+                        $email,
+                        $secretCode,
+                        config("app.name")
+                    );
+
     }
 
     private function getKeyOtpVerify($email) {
         return "authentication:using_otp:$email";
+    }
+
+    public function otpVerify($email, $otp) {
+        $key = $this->getKeyOtpVerify($email);
+        if(!Cache::has($key)) {
+            throw new \Exception("ERROR. OTP is invalid or expried");
+        }
+
+        $secretCode = Cache::get($key);
+        $googleAuthenticator = new \PHPGangsta_GoogleAuthenticator();
+        if(!$googleAuthenticator->verifyCode($secretCode, $otp, 0)) {
+            throw new \Exception("ERROR. OTP is invalid");
+        }
+        $user = auth()->user();
+        $user->secret_code = $secretCode;
+        $user->save();
+
+        return "2FA enabled!";
     }
 }
