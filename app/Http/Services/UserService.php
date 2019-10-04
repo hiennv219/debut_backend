@@ -79,6 +79,7 @@ class UserService {
         if(!$googleAuthenticator->verifyCode($secretCode, $otp, 0)) {
             throw new \Exception("OTP is incorrect");
         }
+        return "Verify OTP has been completed";
     }
 
     public function upgradeUserSecurity($secretCode) {

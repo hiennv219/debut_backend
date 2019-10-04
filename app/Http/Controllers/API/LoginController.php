@@ -23,10 +23,6 @@ class LoginController extends AccessTokenController
 
     use HandlesOAuthErrors;
 
-    public function __construct() {
-        $this->userService = new UserService();
-    }
-
     /**
      * Authorize a client to access the user's account.
      *
@@ -71,8 +67,8 @@ class LoginController extends AccessTokenController
 
     private function verifyOtp($user, $params) {
         if (array_key_exists('otp', $params)) {
-            $this->userService->verifyCode($user->secret_code, $params['otp']);
-            return true;
+            $userService = new UserService();
+            return $userService->verifyCode($user->secret_code, $params['otp']);
         } else {
             return false;
         }
@@ -80,7 +76,8 @@ class LoginController extends AccessTokenController
 
     public function confirmOtp(Request $request) {
         $user = User::where('email', $request->username)->first();
-        return $this->userService->verifyCode($user->secret_code, $request->otp);
+        $userService = new UserService();
+        return $userService->verifyCode($user->secret_code, $request->otp);
     }
 
 }
