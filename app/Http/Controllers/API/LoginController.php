@@ -56,7 +56,7 @@ class LoginController extends AccessTokenController
         if($setting->otp_verified) {
 
             Validator::make($params, [
-                'otp' => "required|regex:/^([0-9]{6}).+$/",
+                'otp' => "required|regex:/^([0-9]{6})+$/",
             ])->validate();
 
             if (!$this->verifyOtp($user, $params)) {
