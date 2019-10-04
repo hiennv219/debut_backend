@@ -30,7 +30,6 @@ class TwoFaceController extends AppBaseController
     public function otpVerify(Request $request) {
         $email = $request->user()->email;
         $code = $request->code;
-
         try {
             return $this->userService->otpVerify($email, $code);
         } catch (\Exception $e) {
@@ -38,6 +37,16 @@ class TwoFaceController extends AppBaseController
                 'code' => [$e->getMessage()],
             ]);
         }
+    }
+
+    public function disableOtp(Request $request) {
+      try {
+          $user = $request->user();
+          $this->userService->disableOtp($user->secret_code, $request->code);
+          return "Success";
+      } catch (\Exception $e) {
+          return $e;
+      }
     }
 
 }

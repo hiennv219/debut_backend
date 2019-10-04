@@ -70,7 +70,6 @@ class UserService {
         $secretCode = Cache::get($key);
         $this->verifyCode($secretCode, $otp);
         Cache::forget($key);
-
         return $this->upgradeUserSecurity($secretCode);
     }
 
@@ -79,13 +78,12 @@ class UserService {
         if(!$googleAuthenticator->verifyCode($secretCode, $otp, 0)) {
             throw new \Exception("OTP is incorrect");
         }
-        return "Verify OTP has been completed";
     }
 
     public function upgradeUserSecurity($secretCode) {
         $user = auth()->user();
         $user->secret_code = $secretCode;
-        $user->secret_code = $secretCode;
+        $user->security_level = 2;
         $user->save();
 
         $setting = UserSecuritySetting::find($user->id);
@@ -95,6 +93,30 @@ class UserService {
         $setting->otp_verified = 1;
         $setting->save();
 
-        return true;
+        return $user;
     }
+
+    public function disableOtp($secretCode, $otp) {
+        $this->verifyCode($secretCode, $otp);
+
+        $user = auth()->user();
+        $user->secret_code = "";
+        $user->security_level = 1;
+        $user->save();
+
+        $setting = UserSecuritySetting::find($user->id);
+        if(!$setting) {
+            throw new \Exception("User security setting is not found");
+        }
+        $setting->otp_verified = 0;
+        $setting->save();
+
+        return $user;
+    }
+
+
+    public function updateSecurity($user, $mothed) {
+
+    }
+
 }

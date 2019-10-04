@@ -68,7 +68,8 @@ class LoginController extends AccessTokenController
     private function verifyOtp($user, $params) {
         if (array_key_exists('otp', $params)) {
             $userService = new UserService();
-            return $userService->verifyCode($user->secret_code, $params['otp']);
+            $userService->verifyCode($user->secret_code, $params['otp']);
+            return true;
         } else {
             return false;
         }
@@ -77,7 +78,8 @@ class LoginController extends AccessTokenController
     public function confirmOtp(Request $request) {
         $user = User::where('email', $request->username)->first();
         $userService = new UserService();
-        return $userService->verifyCode($user->secret_code, $request->otp);
+        $userService->verifyCode($user->secret_code, $request->otp);
+        return "success";
     }
 
 }

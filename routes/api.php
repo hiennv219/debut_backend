@@ -15,11 +15,6 @@ use Illuminate\Http\Request;
 
 
 Route::group(['prefix' => '/v1/'], function(){
-    //
-    // Route::post('/oauth/token', [
-    //   'uses' => '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken',
-    //   'middleware' => 'throttle:6000|6000,1'
-    // ]);
 
     Route::post('/oauth/token', [
         'uses' => 'API\LoginController@issueToken',
@@ -32,15 +27,9 @@ Route::group(['prefix' => '/v1/'], function(){
     Route::post('confirm-otp', 'API\LoginController@confirmOtp');
 
     Route::group(['middleware' => 'auth:api'], function() {
-        Route::get('users', 'API\UserController@getInformation');
+        Route::get('user', 'API\UserController@getInformation');
         Route::get('general-qr-code', 'API\TwoFaceController@getOTPGoogleAuthenticator');
         Route::post('otp-verify', 'API\TwoFaceController@otpVerify');
+        Route::post('disable-otp', 'API\TwoFaceController@disableOtp');
     });
 });
-
-
-
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-//
