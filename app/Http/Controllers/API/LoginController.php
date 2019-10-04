@@ -12,6 +12,8 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response as Psr7Response;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Services\UserService;
 use App\Models\UserSecuritySetting;
 use App\User;
 use Illuminate\Support\Facades\Auth;
@@ -33,19 +35,16 @@ class LoginController extends AccessTokenController
             $response = $this->convertResponse(
                 $this->server->respondToAccessTokenRequest($request, new Psr7Response)
             );
-            $this->verifySettings($request);
+            $this->verifyUserSecurity($request);
             return $response;
-            // return $this->authenticated($response);
         } catch (OAuthServerException $e) {
             throw ValidationException::withMessages([
                 'email' => [$e->getMessage()],
             ]);
-
-            // throw new \Exception($e->getMessage());
         }
     }
 
-    protected function verifySettings($request) {
+    protected function verifyUserSecurity($request) {
         $params = $request->getParsedBody();
         $user = User::where('email', $params['username'])->first();
         $setting = UserSecuritySetting::find($user->id);
@@ -55,21 +54,30 @@ class LoginController extends AccessTokenController
         }
 
         if($setting->otp_verified) {
+
+            Validator::make($params, [
+                'otp' => "required|regex:/^([0-9]{6})+$/",
+            ])->validate();
+
             if (!$this->verifyOtp($user, $params)) {
                 throw new OAuthServerException('The otp was incorrect.', 6, 'invalid_otp');
             }
         }
-
     }
 
-    private function verifyOtp($user, $params){
+    private function verifyOtp($user, $params) {
         if (array_key_exists('otp', $params)) {
-            /*Fake pass OTP*/
-            return true;
-            // return $user->verifyOtp($params['otp']);
+            $userService = new UserService();
+            return $userService->verifyCode($user->secret_code, $params['otp']);
         } else {
             return false;
         }
+    }
+
+    public function confirmOtp(Request $request) {
+        $user = User::where('email', $request->username)->first();
+        $userService = new UserService();
+        return $userService->verifyCode($user->secret_code, $request->otp);
     }
 
 }
