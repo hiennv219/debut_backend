@@ -9,12 +9,15 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Auth\Events\Registered;
+use App\Mail\VerificationEmail;
 use App\Http\Services\UserService;
 use App\Models\UserSecuritySetting;
 use App\User;
 use Validator;
 use Log;
 use DB;
+use Mail;
+use App\Consts;
 
 class RegisterController extends AppBaseController
 {
@@ -26,7 +29,7 @@ class RegisterController extends AppBaseController
     public function register(Request $request) {
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|email|unique:users',
+                'email' => 'required|email|unique_email',
                 'password' => 'required',
                 'c_password' => 'required|same:password',
             ]);
@@ -43,6 +46,9 @@ class RegisterController extends AppBaseController
                 )
             ));
             $this->userService->setAuthenticationNumber($request->email, $code);
+
+            Mail::queue(new VerificationEmail($request->email, $code));
+
             return $this->sendResponse($code);
         } catch (\Exception $e) {
             return $this->sendResponse($e->getMessage());
@@ -53,8 +59,11 @@ class RegisterController extends AppBaseController
         DB::beginTransaction();
         try {
             //Create user
-            $input['password'] = bcrypt($input['password']);
-            $user = User::create($input);
+            $user = User::firstOrNew([
+                    'email' => $input['email']
+                ]);
+            $user->password = bcrypt($input['password']);
+            $user->save();
 
             //Save code
             $setting = UserSecuritySetting::firstOrNew([ 'id' => $user->id ]);

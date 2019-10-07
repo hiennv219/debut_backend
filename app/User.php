@@ -26,6 +26,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'secret_code'
     ];
+
+    public function securitySetting() {
+        return $this->hasOne('App\Models\UserSecuritySetting', 'id');
+    }
 }

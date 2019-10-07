@@ -3,8 +3,9 @@
 namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Cache;
-use App\Consts;
 use App\Models\UserSecuritySetting;
+use App\User;
+use App\Consts;
 
 class UserService {
 
@@ -24,6 +25,18 @@ class UserService {
     public function emailVerify($email, $code) {
         $this->validateParamsEmailVerify($email, $code);
 
+        $this->activeAccount($email);
+        $this->upgradeEmailUserSecurity($code);
+        return true;
+    }
+
+    private function activeAccount($email) {
+        $user = User::where('email', $email)->first();
+        $user->active = 1;
+        $user->save();
+    }
+
+    private function upgradeEmailUserSecurity($code) {
         $setting = UserSecuritySetting::where('email_verification_code', $code)->first();
         if(!$setting) {
             throw new \Exception("ERROR. Code is not found");
@@ -32,7 +45,6 @@ class UserService {
         $setting->email_verified = 1;
         $setting->email_verification_code = "";
         $setting->save();
-        return true;
     }
 
     private function validateParamsEmailVerify($email, $code) {
@@ -70,7 +82,7 @@ class UserService {
         $secretCode = Cache::get($key);
         $this->verifyCode($secretCode, $otp);
         Cache::forget($key);
-        return $this->upgradeUserSecurity($secretCode);
+        return $this->upgradeOTPUserSecurity($secretCode);
     }
 
     public function verifyCode($secretCode, $otp) {
@@ -80,7 +92,7 @@ class UserService {
         }
     }
 
-    public function upgradeUserSecurity($secretCode) {
+    public function upgradeOTPUserSecurity($secretCode) {
         $user = auth()->user();
         $user->secret_code = $secretCode;
         $user->security_level = 2;
