@@ -5,7 +5,10 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class NoteController extends Controller
+use App\Http\Controllers\AppBaseController;
+use App\Models\Note;
+
+class NoteController extends AppBaseController
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +17,13 @@ class NoteController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $notes = Note::get();
+            return $this->sendResponse($notes);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
     }
 
     /**
@@ -35,7 +44,12 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $title = $request->title;
+        $content = $request->content;
+        return Note::create([
+          'title' => $title,
+          'content' => $content
+        ]);
     }
 
     /**

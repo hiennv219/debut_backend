@@ -35,6 +35,7 @@ Route::group(['prefix' => '/v1/'], function(){
     });
 
     Route::group(['prefix' => '/notes', 'middleware' => 'auth:api'], function() {
+        Route::get('/', 'API\NoteController@index');
         Route::post('/take-a-note', 'API\NoteController@store');
     });
 });
