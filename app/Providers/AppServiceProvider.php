@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('unique_email', function($attribute, $value, $parameters, $validator) {
             $user = User::where('email', $value)->first();
             if($user) {
-                return !$user->active;
+                return !$user->UserSecuritySetting->email_verified;
             }
             return true;
         });

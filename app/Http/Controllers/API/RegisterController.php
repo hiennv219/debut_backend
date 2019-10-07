@@ -60,9 +60,8 @@ class RegisterController extends AppBaseController
         try {
             //Create user
             $user = User::firstOrNew([
-                'email' => $input['email'],
-                'active' => Consts::INACTIVE
-            ]);
+                    'email' => $input['email']
+                ]);
             $user->password = bcrypt($input['password']);
             $user->save();
 
