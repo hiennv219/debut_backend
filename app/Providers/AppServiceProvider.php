@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
+use App\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
+
+        //Validator extend
+        Validator::extend('unique_email', function($attribute, $value, $parameters, $validator) {
+            $user = User::where('email', $value)->first();
+            if($user) {
+                return !$user->active;
+            }
+            return true;
+        });
     }
 
     /**

@@ -88,6 +88,8 @@ return [
     'uploaded'             => 'The :attribute failed to upload.',
     'url'                  => 'The :attribute format is invalid.',
 
+    'unique_email'         => 'The email address is already taken. Please choose another once.',
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
