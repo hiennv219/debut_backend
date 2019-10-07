@@ -22,6 +22,15 @@ class UserController extends AppBaseController
         $this->userService = new UserService();
     }
 
+    public function getCurrentUser(Request $request) {
+        if ($request->input('immediately')) {
+            $user = User::on('master')->find($request->user()->id);
+        } else {
+            $user = $request->user();
+        }
+        return $this->sendResponse($user);
+    }
+
     public function getInformation(Request $request) {
         if ($request->input('immediately')) {
             $user = User::on('master')->find($request->user()->id);
