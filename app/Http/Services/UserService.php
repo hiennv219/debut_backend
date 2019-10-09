@@ -32,7 +32,7 @@ class UserService {
 
     private function activeAccount($email) {
         $user = User::where('email', $email)->first();
-        $user->active = 1;
+        $user->security_level = 1;
         $user->save();
     }
 

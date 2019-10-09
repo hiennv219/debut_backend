@@ -10,6 +10,5 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/otp', 'API\UserController@getOTPGoogleAuthenticator');
 Route::get('/', 'HomeController@index');
 Route::get('/{view?}', 'HomeController@index');

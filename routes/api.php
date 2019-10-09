@@ -17,14 +17,14 @@ use Illuminate\Http\Request;
 Route::group(['prefix' => '/v1/'], function(){
 
     Route::post('/oauth/token', [
-        'uses' => 'API\LoginController@issueToken',
+        'uses' => 'API\Auth\LoginController@issueToken',
         'middleware' => 'throttle:6000|6000,1'
     ]);
 
-    Route::post('login', 'API\RegisterController@login');
-    Route::post('register', 'API\RegisterController@register');
-    Route::post('email-verify', 'API\RegisterController@emailVerify');
-    Route::post('confirm-otp', 'API\LoginController@confirmOtp');
+    Route::post('login', 'API\Auth\RegisterController@login');
+    Route::post('register', 'API\Auth\RegisterController@register');
+    Route::post('email-verify', 'API\Auth\RegisterController@emailVerify');
+    Route::post('confirm-otp', 'API\Auth\LoginController@confirmOtp');
 
     Route::group(['prefix' => '/user', 'middleware' => 'auth:api'], function() {
         Route::get('/', 'API\Auth\UserController@getCurrentUser');
@@ -38,7 +38,6 @@ Route::group(['prefix' => '/v1/'], function(){
     });
 
     Route::group(['prefix' => '/notes', 'middleware' => 'auth:api'], function() {
-        Route::get('/', 'API\NoteController@index');
-        Route::post('/take-a-note', 'API\NoteController@store');
+        Route::resource('', 'API\NoteController')->only(['index', 'store']);
     });
 });

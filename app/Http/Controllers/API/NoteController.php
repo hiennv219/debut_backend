@@ -47,9 +47,11 @@ class NoteController extends AppBaseController
     {
         $title = $request->title;
         $content = $request->content;
+        $private = $request->private;
         $note = Note::create([
           'title' => $title,
-          'content' => $content
+          'content' => $content,
+          'private' => $private,
         ]);
 
         event(new NoteUpdated($note));
