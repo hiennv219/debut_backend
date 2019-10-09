@@ -26,12 +26,15 @@ Route::group(['prefix' => '/v1/'], function(){
     Route::post('email-verify', 'API\RegisterController@emailVerify');
     Route::post('confirm-otp', 'API\LoginController@confirmOtp');
 
-    Route::group(['middleware' => 'auth:api'], function() {
-        Route::get('user', 'API\UserController@getCurrentUser');
-        Route::get('user-security-level', 'API\UserController@getInformation');
-        Route::get('general-qr-code', 'API\TwoFaceController@getOTPGoogleAuthenticator');
-        Route::post('otp-verify', 'API\TwoFaceController@otpVerify');
-        Route::post('disable-otp', 'API\TwoFaceController@disableOtp');
+    Route::group(['prefix' => '/user', 'middleware' => 'auth:api'], function() {
+        Route::get('/', 'API\Auth\UserController@getCurrentUser');
+        Route::get('/security-level', 'API\Auth\UserController@getInformation');
+    });
+
+    Route::group(['prefix' => '/authenticator', 'middleware' => 'auth:api'], function() {
+        Route::get('/general-otp', 'API\TwoFaceController@getOTPGoogleAuthenticator');
+        Route::post('/verify-otp', 'API\TwoFaceController@otpVerify');
+        Route::post('/disable-otp', 'API\TwoFaceController@disableOtp');
     });
 
     Route::group(['prefix' => '/notes', 'middleware' => 'auth:api'], function() {
