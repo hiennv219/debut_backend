@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Http\Controllers\AppBaseController;
 use App\Models\Note;
+use App\Events\NoteUpdated;
 
 class NoteController extends AppBaseController
 {
@@ -18,7 +19,7 @@ class NoteController extends AppBaseController
     public function index()
     {
         try {
-            $notes = Note::get();
+            $notes = Note::orderBy('updated_at','DESC')->get();
             return $this->sendResponse($notes);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -46,10 +47,13 @@ class NoteController extends AppBaseController
     {
         $title = $request->title;
         $content = $request->content;
-        return Note::create([
+        $note = Note::create([
           'title' => $title,
           'content' => $content
         ]);
+
+        event(new NoteUpdated($note));
+        return "success";
     }
 
     /**
