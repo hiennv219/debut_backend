@@ -9,12 +9,11 @@ use Illuminate\Support\Facades\Auth;
 class NoteService {
 
     public function getNotes($params) {
-      if(array_key_exists('keywords', $params) && strlen($params['keywords'])) {
-          $notes = Note::search($params['keywords'])->get();
-      }else {
-          $notes = Note::get();
+      $notes = Note::orderBy('id', 'desc');
+      if(array_key_exists('keywords', $params) && strlen($params['keywords']) >= 2) {
+          $notes = Note::search($params['keywords']);
       }
-      return $notes;
+      return $notes->get();
     }
 
     public function createNote($params) {
