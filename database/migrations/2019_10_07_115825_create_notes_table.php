@@ -18,6 +18,7 @@ class CreateNotesTable extends Migration
             $table->string('title')->nullable();
             $table->text('content')->nullable();
             $table->integer('private')->default(1);
+            $table->integer('author_id');
             $table->timestamps();
         });
     }

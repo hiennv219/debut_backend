@@ -6,35 +6,29 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Http\Controllers\AppBaseController;
-use App\Models\Note;
-use App\Events\NoteUpdated;
+use App\Http\Services\NoteService;
 
 class NoteController extends AppBaseController
 {
+
+    public function __construct() {
+        $this->noteService = new NoteService();
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $notes = Note::orderBy('updated_at','DESC')->get();
+            $notes = $this->noteService->getNotes($request->all());
             return $this->sendResponse($notes);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
         }
 
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -45,61 +39,12 @@ class NoteController extends AppBaseController
      */
     public function store(Request $request)
     {
-        $title = $request->title;
-        $content = $request->content;
-        $private = $request->private;
-        $note = Note::create([
-          'title' => $title,
-          'content' => $content,
-          'private' => $private,
-        ]);
-
-        event(new NoteUpdated($note));
-        return "success";
+        try {
+            $note = $this->noteService->createNote($request->all());
+            return $this->sendResponse($note);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
