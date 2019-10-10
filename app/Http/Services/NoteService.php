@@ -13,6 +13,10 @@ class NoteService {
       if(array_key_exists('keywords', $params) && strlen($params['keywords']) >= 2) {
           $notes = Note::search($params['keywords']);
       }
+      if(array_key_exists('private', $params)) {
+          $userId = Auth::id();
+          $notes = $notes->where('author_id', $userId);
+      }
       return $notes->get();
     }
 

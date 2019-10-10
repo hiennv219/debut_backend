@@ -18,6 +18,6 @@ class Note extends Model
     }
 
     public function toSearchableArray(){
-        return $this->only('title', 'content');
+        return $this->only('title', 'content', 'author_id');
     }
 }
