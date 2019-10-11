@@ -20,7 +20,7 @@ class Note extends Model
     }
 
     public function toSearchableArray(){
-        return $this->only('title', 'content', 'author_id');
+        return $this->only('title', 'content', 'author', 'type', 'status');
     }
 
     public function scopeSocial($query) {
