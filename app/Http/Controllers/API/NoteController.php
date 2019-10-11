@@ -4,9 +4,9 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
 use App\Http\Controllers\AppBaseController;
 use App\Http\Services\NoteService;
+use App\Http\Requests\NoteRequest;
 
 class NoteController extends AppBaseController
 {
@@ -37,14 +37,14 @@ class NoteController extends AppBaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(NoteRequest $request)
     {
-        // try {
+        try {
             $note = $this->noteService->createNote($request->all());
             return $this->sendResponse($note);
-        // } catch (\Exception $e) {
-            // return $this->sendError($e->getMessage());
-        // }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 
 }
