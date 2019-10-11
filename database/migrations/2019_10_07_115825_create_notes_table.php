@@ -17,8 +17,9 @@ class CreateNotesTable extends Migration
             $table->increments('id');
             $table->string('title')->nullable();
             $table->text('content')->nullable();
-            $table->integer('private')->default(1);
-            $table->integer('author_id');
+            $table->integer('author')->default(0);
+            $table->integer('type')->default(0); // 0 => 'social', 1 => 'private'
+            $table->string('status')->nullable(); // only_social: pending, approved, rejected
             $table->timestamps();
         });
     }

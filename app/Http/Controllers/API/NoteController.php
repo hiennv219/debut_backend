@@ -39,12 +39,12 @@ class NoteController extends AppBaseController
      */
     public function store(Request $request)
     {
-        try {
+        // try {
             $note = $this->noteService->createNote($request->all());
             return $this->sendResponse($note);
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
-        }
+        // } catch (\Exception $e) {
+            // return $this->sendError($e->getMessage());
+        // }
     }
 
 }

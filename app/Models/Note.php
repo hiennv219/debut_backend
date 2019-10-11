@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use App\User;
+use App\Consts;
 
 class Note extends Model
 {
@@ -11,7 +13,7 @@ class Note extends Model
 
     protected $table = 'notes';
 
-    protected $fillable = ['title', 'content', 'private', 'author_id'];
+    protected $fillable = ['title', 'content', 'author', 'type', 'status'];
 
     public function searchableAs() {
         return 'notes_index';
@@ -19,5 +21,21 @@ class Note extends Model
 
     public function toSearchableArray(){
         return $this->only('title', 'content', 'author_id');
+    }
+
+    public function scopeSocial($query) {
+        return $query->where('type', Consts::TYPE_SOCIAL);
+    }
+
+    public function scopePublished($query) {
+        return $query->where('status', Consts::STATUS_APPROVED);
+    }
+
+    public function getAuthorIdAttribute($value) {
+        $user = User::find($value);
+        if($user) {
+            return $user->email;
+        }
+        return "Anonymous";
     }
 }

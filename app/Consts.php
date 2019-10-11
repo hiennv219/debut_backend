@@ -10,4 +10,11 @@ class Consts{
 
   const CONNECTION_SOCKET = 'sync';
   const QUEUE_SOCKET = 'socket';
+
+  const TYPE_SOCIAL = 0;
+  const TYPE_PRIVATE = 1;
+
+  const STATUS_PENDING = 'pending';
+  const STATUS_APPROVED = 'approved';
+  const STATUS_REJECTED = 'rejected';
 }
