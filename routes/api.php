@@ -39,5 +39,6 @@ Route::group(['prefix' => '/v1/'], function(){
 
     Route::group(['prefix' => '/notes', 'middleware' => 'auth:api'], function() {
         Route::resource('', 'API\NoteController')->only(['index', 'store']);
+        Route::get('/{id}', 'API\NoteController@show');
     });
 });

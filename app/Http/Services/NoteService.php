@@ -24,6 +24,15 @@ class NoteService {
         return $query->get();
     }
 
+    public function getNote($id) {
+        return Note::where('id', $id)
+            ->where(function($query) {
+                $query->where('type', 0);
+                $query->orWhere('author', Auth::id());
+            })
+            ->first();
+    }
+
     public function createNote($params) {
         $data = [
             'title' => $params['title'],

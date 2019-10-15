@@ -15,11 +15,6 @@ class NoteController extends AppBaseController
         $this->noteService = new NoteService();
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         try {
@@ -31,16 +26,19 @@ class NoteController extends AppBaseController
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(NoteRequest $request)
     {
         try {
             $note = $this->noteService->createNote($request->all());
+            return $this->sendResponse($note);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function show($id) {
+        try {
+            $note = $this->noteService->getNote($id);
             return $this->sendResponse($note);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
